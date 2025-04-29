@@ -1,0 +1,61 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Sample data (normally you'd load this from Excel)
+data = [
+    {"Destination": "Palencia", "Project": "BX", "Reference": "BX726",
+     "Shipping Date": "2025-04-29", "ETA": "2025-05-02", "Transport Mode": "Truck"},
+    {"Destination": "Palencia", "Project": "BX", "Reference": "BX726",
+     "Shipping Date": "2025-05-02", "ETA": "2025-05-05", "Transport Mode": "Truck"},
+]
+df = pd.DataFrame(data)
+
+# Convert dates
+for col in ["Shipping Date", "ETA"]:
+    df[col] = pd.to_datetime(df[col])
+
+st.set_page_config(page_title="Export Expeditions - Week 18", layout="wide")
+st.title("🚀 Export Expeditions Dashboard - Week 18")
+
+# Theme styling
+st.markdown("""
+    <style>
+        body {
+            background-color: #f8fbff;
+            color: #003366;
+        }
+        .stApp {
+            background-color: #ffffff;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# Sidebar filters
+with st.sidebar:
+    st.header("🔍 Filter Expeditions")
+    project_filter = st.multiselect("Select Project", df["Project"].unique(), default=df["Project"].unique())
+    destination_filter = st.multiselect("Select Destination", df["Destination"].unique(), default=df["Destination"].unique())
+
+# Filtered dataframe
+filtered_df = df[
+    (df["Project"].isin(project_filter)) &
+    (df["Destination"].isin(destination_filter))
+]
+
+# Timeline chart
+fig = px.timeline(
+    filtered_df,
+    x_start="Shipping Date",
+    x_end="ETA",
+    y="Reference",
+    color="Destination",
+    title="Shipping Timeline",
+    color_discrete_sequence=["#007BFF"]
+)
+fig.update_yaxes(autorange="reversed")
+st.plotly_chart(fig, use_container_width=True)
+
+# Expedition table
+with st.expander("📄 Show Detailed Table"):
+    st.dataframe(filtered_df.sort_values(by="Shipping Date"))
