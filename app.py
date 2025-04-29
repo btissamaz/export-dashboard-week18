@@ -48,8 +48,19 @@ st.markdown("""
 
 # Sidebar filters
 st.sidebar.header("🔍 Filter")
-project_filter = st.sidebar.multiselect("Select Project", df["Project"].unique(), default=df["Project"].unique())
-destination_filter = st.sidebar.multiselect("Select Destination", df["Destination"].unique(), default=df["Destination"].unique())
+if not df.empty and "Project" in df.columns and "Destination" in df.columns:
+    project_filter = st.sidebar.multiselect("Select Project", df["Project"].unique(), default=df["Project"].unique())
+    destination_filter = st.sidebar.multiselect("Select Destination", df["Destination"].unique(), default=df["Destination"].unique())
+
+    # Filtered data
+    filtered_df = df[
+        (df["Project"].isin(project_filter)) &
+        (df["Destination"].isin(destination_filter))
+    ]
+else:
+    st.warning("⚠️ No expedition data found. Please check your Excel file format.")
+    filtered_df = pd.DataFrame()
+
 
 # Filtered data
 filtered_df = df[
