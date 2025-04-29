@@ -53,10 +53,15 @@ if not df.empty and "Project" in df.columns and "Destination" in df.columns:
     destination_filter = st.sidebar.multiselect("Select Destination", df["Destination"].unique(), default=df["Destination"].unique())
 
     # Filtered data
+  if "Project" in df.columns and "Destination" in df.columns:
     filtered_df = df[
         (df["Project"].isin(project_filter)) &
         (df["Destination"].isin(destination_filter))
     ]
+else:
+    st.warning("⚠️ Your data is missing required columns like 'Project' or 'Destination'. Please check your Excel file.")
+    filtered_df = df
+
 else:
     st.warning("⚠️ No expedition data found. Please check your Excel file format.")
     filtered_df = pd.DataFrame()
